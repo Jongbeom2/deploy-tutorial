@@ -1,17 +1,20 @@
-# Use the official image as a parent image.
-FROM node:current-slim
+# Use the official lightweight Node.js 10 image.
+# https://hub.docker.com/_/node
+FROM node:10-slim
 
-# Set the working directory.
-WORKDIR /app
+# Create and change to the app directory.
+WORKDIR /usr/src/app
 
-# Copy the file from your host to your current location.
-COPY . .
+# Copy application dependency manifests to the container image.
+# A wildcard is used to ensure both package.json AND package-lock.json are copied.
+# Copying this separately prevents re-running npm install on every code change.
+COPY package*.json ./
 
-# Run the command inside your image filesystem.
-RUN npm install
+# Install production dependencies.
+RUN npm install --only=production
 
-# Add metadata to the image to describe which port the container is listening on at runtime.
-EXPOSE 3002
+# Copy local code to the container image.
+COPY . ./
 
-# Run the specified command within the container.
+# Run the web service on container startup.
 CMD [ "npm", "start" ]
